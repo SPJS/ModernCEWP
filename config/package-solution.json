@@ -1,0 +1,40 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "Modern CEWP",
+    "id": "7da822d6-d286-401d-b898-8620619ebf90",
+    "version": "1.0.0.2",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "developer": {
+      "name": "Alexander Bautz",
+      "websiteUrl": "https://SPJSWorks.com",
+      "privacyUrl": "",
+      "termsOfUseUrl": "",
+      "mpnId": ""
+    },
+    "metadata": {
+      "shortDescription": {
+        "default": "Modern Content Editor Web Part"
+      },
+      "longDescription": {
+        "default": "This webpart replicates the classic SharePoint Content Editor Web part and lets you link to a HTML file containing HTML / JS or insert HTML code directly into the page."
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": []
+    },
+    "features": [
+      {
+        "title": "modern-cewp Feature",
+        "description": "The feature that activates elements of the modern-cewp solution.",
+        "id": "ed4372d2-dc3b-42e5-bdcf-1ae3635350a9",
+        "version": "1.0.0.0"
+      }
+    ]
+  },
+  "paths": {
+    "zippedPackage": "solution/modern-cewp.sppkg"
+  }
+}

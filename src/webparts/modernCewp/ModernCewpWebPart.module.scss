@@ -1,0 +1,44 @@
+@import '~@microsoft/sp-office-ui-fabric-core/dist/sass/SPFabricCore.scss';
+
+.modernCewp {
+  .container {
+    max-width: 700px;
+    margin: 0px auto;
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2), 0 25px 50px 0 rgba(0, 0, 0, 0.1);
+  }
+
+  .row {
+    @include ms-fontColor-white;
+    background-color: $ms-color-themeDark;
+    padding: 20px;
+  }
+
+  .spjsLink {
+    @include ms-font-m;
+    margin-bottom:15px;
+  }
+
+  .spjsLink a{
+    color:#ffffff!important;
+  }
+
+  .title {
+    @include ms-font-xl;
+    @include ms-fontColor-white;
+    cursor: default;
+  }
+  
+  .subTitle {
+    @include ms-font-l;
+    @include ms-fontColor-white;
+    margin-top:15px;
+    cursor: default;
+  }
+
+  .label{
+    @include ms-font-m;
+    @include ms-fontColor-white;
+    cursor: default;
+    margin:5px 0 0 15px;
+  }
+}

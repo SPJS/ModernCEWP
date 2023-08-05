@@ -1,0 +1,18 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "modern-cewp-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/modernCewp/ModernCewpWebPart.js",
+          "manifest": "./src/webparts/modernCewp/ModernCewpWebPart.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {},
+  "localizedResources": {
+    "ModernCewpWebPartStrings": "lib/webparts/modernCewp/loc/{locale}.js"
+  }
+}
