@@ -3,7 +3,7 @@
   "solution": {
     "name": "Modern CEWP",
     "id": "7da822d6-d286-401d-b898-8620619ebf90",
-    "version": "1.0.0.2",
+    "version": "1.0.0.3",
     "includeClientSideAssets": true,
     "skipFeatureDeployment": true,
     "isDomainIsolated": false,

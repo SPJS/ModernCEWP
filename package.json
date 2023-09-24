@@ -1,6 +1,6 @@
 {
   "name": "modern-cewp",
-  "version": "1.0.0.2",
+  "version": "1.0.0.3",
   "private": true,
   "engines": {
     "node": ">=16.13.0 <17.0.0"

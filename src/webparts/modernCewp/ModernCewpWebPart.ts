@@ -62,25 +62,31 @@ export default class ModernCewpWebPart extends BaseClientSideWebPart<IModernCewp
     if (this.properties.spPageContextInfo && !window._spPageContextInfo) {
       window._spPageContextInfo = this.context.pageContext.legacyPageContext;
     }
-    const uid: string = String(Math.random()).substr(2);
+    const uid: string = String(Math.random()).substring(2);
     const contentPlaceholderId: string = 'modernCEWP_ContentPlaceholder_' + uid;
     const contentLinkPlaceholderId: string = 'modernCEWP_ContentLinkPlaceholder_' + uid;
     const html: string = this.properties.content;
     const path: string = this.properties.contentLink;
-    let innerHTML: string = '';
-    if (html !== '') {
+    let innerHTML: string = "";
+    if (html !== "") {
       innerHTML += '<div id="' + contentPlaceholderId + '"></div>';
     }
-    if (path !== '') {
+    if (path !== "") {
       innerHTML += '<div id="' + contentLinkPlaceholderId + '"></div>';
     }
     this.domElement.innerHTML = innerHTML;
-    if (html !== '') {
+    if (html !== undefined && html !== "") {
       jQuery('#' + contentPlaceholderId).html(html);
     }
-    if (path !== '') {
-      jQuery.get(this.properties.contentLink).done((data) => {
-        jQuery('#' + contentLinkPlaceholderId).html(data);
+    if (path !== undefined && path !== "") {
+      fetch(this.properties.contentLink).then(async (data) => {
+        const responseCode = data.status;
+        if (responseCode === 200) {
+          const content = await data.text();
+          jQuery('#' + contentLinkPlaceholderId).html(content);
+        } else {
+          document.getElementById(contentLinkPlaceholderId).innerHTML = "Content link error: " + String(responseCode);
+        }
       }).catch((err) => {
         const str: string = `
         <div class="${styles.modernCewp}">
@@ -91,10 +97,10 @@ export default class ModernCewpWebPart extends BaseClientSideWebPart<IModernCewp
               ${err.responseText}
             </div>
         </div>`;
-        jQuery('#' + contentLinkPlaceholderId).html(str);
+        document.getElementById(contentLinkPlaceholderId).innerHTML = str;
       });
     }
-    if (path === '' && html === '') {
+    if (path === "" && html === "") {
       const str: string = `
         <div class="${styles.modernCewp}">
           <div class="${styles.container}">
