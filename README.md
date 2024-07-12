@@ -21,7 +21,7 @@ Version 1.0.0.2 is built with an SPfx version that only works on SPO. Previous v
 
 ## Solution
 
-Modern CEWP | Alexander Bautz - SPSJWorks.com
+Modern CEWP | Alexander Bautz - SPJSWorks.com
 
 ## Version history
 1.0.0.2 - August 08, 2023
