@@ -2,6 +2,7 @@
 {
   // Configure glob patterns for excluding files and folders in the file explorer.
   "files.exclude": {
+    "**/jest-output": true,
     "**/.git": true,
     "**/.DS_Store": true,
     "**/bower_components": true,

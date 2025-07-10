@@ -1,5 +1,8 @@
 {
   "@microsoft/generator-sharepoint": {
+    "sdkVersions": {
+      "@microsoft/teams-js": "2.24.0"
+    },
     "plusBeta": false,
     "isCreatingSolution": true,
     "nodeVersion": "16.20.0",
@@ -7,7 +10,7 @@
       "@microsoft/microsoft-graph-client": "3.0.2",
       "@microsoft/teams-js": "2.9.1"
     },
-    "version": "1.17.2",
+    "version": "1.21.1",
     "libraryName": "modern-cewp",
     "libraryId": "7da822d6-d286-401d-b898-8620619ebf90",
     "environment": "spo",
