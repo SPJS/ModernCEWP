@@ -17,6 +17,7 @@ import * as jQuery from 'jquery';
 
 export interface IModernCewpWebPartProps {
   spPageContextInfo: boolean;
+  cewpTitle: string;
   content: string;
   contentLink: string;
 }
@@ -39,18 +40,80 @@ export default class ModernCewpWebPart extends BaseClientSideWebPart<IModernCewp
     const hasHtml: string = this.properties.content !== undefined && this.properties.content !== '' ? strings.Yes : strings.No;
     const hasLegacyContext: string = this.properties.spPageContextInfo ? strings.Yes : strings.No;
     this.domElement.innerHTML = `
-      <div class="${styles.modernCewp}">
-        <div class="${styles.container}">
-          <div class="${styles.row}">
-              <div class="${styles.spjsLink}"><a href='https://spjsblog.com/modern-cewp/' target='_blank'>${strings.Link}</a></div>
-              <div class="${styles.title}">${strings.webPartName}</div>
-              <div class="${styles.subTitle}">${strings.webPartSettings}</div>
-              <p class="${styles.label}">${strings.WebPartHasContentLinkLabel}${hasPath}</p>
-              <p class="${styles.label}">${strings.WebPartHasHTMLLabel}${hasHtml}</p>
-              <p class="${styles.label}">${strings.WebPartHasPageContextLabel}${hasLegacyContext}</p>
-          </div>
+    <div class="${styles.modernCewp}">
+      <div class="${styles.container}">
+        <div class="${styles.header}">${this.properties.cewpTitle || ""}</div>
+        <div class="${styles.row}">
+          <div class="${styles.spjsLink}"><a href='https://spjsblog.com/modern-cewp/' target='_blank'>${strings.Link}</a></div>
+          <div class="${styles.title}">${strings.webPartName}</div>
+          <div class="${styles.subTitle}">${strings.webPartSettings}</div>
+          <p class="${styles.label}">${strings.WebPartHasContentLinkLabel}${hasPath}</p>
+          <p class="${styles.label}">${strings.WebPartHasHTMLLabel}${hasHtml}</p>
+          <p class="${styles.label}">${strings.WebPartHasPageContextLabel}${hasLegacyContext}</p>
         </div>
-      </div>`;
+      </div>
+    </div>`;
+  }
+
+  public async processFetchedHTML(htmlString: string, pId: string): Promise<void> {
+    const parser: DOMParser = new DOMParser();
+
+    // Parse the string into a temporary HTML Document
+    const doc: Document = parser.parseFromString(htmlString, 'text/html');
+
+    // Select all script tags and type them as HTMLScriptElements
+    const scripts: NodeListOf<HTMLScriptElement> = doc.querySelectorAll('script');
+
+    // Convert to an Array to make manipulation and iteration easier
+    const scriptArray: HTMLScriptElement[] = Array.from(scripts);
+
+    // Remove scripts from the parsed document before injecting the HTML
+    scriptArray.forEach((script: HTMLScriptElement) => {
+      script.remove();
+    });
+
+    // Find your target container (ensure it's typed as an HTMLElement)
+    const container: HTMLElement | null = document.getElementById(pId);
+
+    if (container) {
+      // Inject the "cleaned" HTML (scripts have been removed)
+      container.innerHTML = doc.body.innerHTML;
+
+      // Pass the extracted script elements to the ordered handler
+      await this.handleScriptsOrdered(scriptArray);
+    } else {
+      console.error("Modern CEWP - Target container not found in the DOM.");
+    }
+  }
+
+  public async handleScriptsOrdered(scripts: NodeListOf<HTMLScriptElement> | HTMLScriptElement[]): Promise<void> {
+    for (const script of Array.from(scripts)) {
+      if (script.hasAttribute('src')) {
+        // Handle External Scripts
+        await new Promise<void>((resolve, reject) => {
+          const newScript: HTMLScriptElement = document.createElement('script');
+
+          // Copy all attributes
+          Array.from(script.attributes).forEach((attr: Attr) => {
+            newScript.setAttribute(attr.name, attr.value);
+          });
+
+          newScript.onload = () => resolve();
+          newScript.onerror = () => reject(new Error(`Failed to load script: ${newScript.src}`));
+
+          document.head.appendChild(newScript);
+        });
+      } else if (script.textContent?.trim()) {
+        // Handle Inline Scripts
+        try {
+          // Use explicit function type for ESLint compatibility
+          const scriptFunc = new Function(script.textContent || "");
+          scriptFunc.call(window);
+        } catch (err) {
+          console.error("Modern CEWP - Inline script error:", err);
+        }
+      }
+    }
   }
 
   public _renderView(): void {
@@ -58,7 +121,7 @@ export default class ModernCewpWebPart extends BaseClientSideWebPart<IModernCewp
     if (window.jQuery === undefined) {
       window.jQuery = jQuery;
     }
-    // Make _spPageContextInfo available
+    // Make _spPageContextInfo available in the global window scope
     if (this.properties.spPageContextInfo && !window._spPageContextInfo) {
       window._spPageContextInfo = this.context.pageContext.legacyPageContext;
     }
@@ -76,14 +139,18 @@ export default class ModernCewpWebPart extends BaseClientSideWebPart<IModernCewp
     }
     this.domElement.innerHTML = innerHTML;
     if (html !== undefined && html !== "") {
-      jQuery('#' + contentPlaceholderId).html(html);
+      this.processFetchedHTML(html, contentPlaceholderId).catch((err: unknown) => {
+        console.log("Modern CEWP - Error in processFetchedHTML: ", err);
+      });
     }
     if (path !== undefined && path !== "") {
       fetch(this.properties.contentLink).then(async (data) => {
         const responseCode = data.status;
         if (responseCode === 200) {
           const content = await data.text();
-          jQuery('#' + contentLinkPlaceholderId).html(content);
+          this.processFetchedHTML(content, contentLinkPlaceholderId).catch((err: unknown) => {
+            console.log("Modern CEWP - Error in processFetchedHTML for contentlink: ", err);
+          });
         } else {
           document.getElementById(contentLinkPlaceholderId).innerHTML = "Content link error: " + String(responseCode);
         }
@@ -143,6 +210,12 @@ export default class ModernCewpWebPart extends BaseClientSideWebPart<IModernCewp
             {
               groupName: strings.BasicGroupName,
               groupFields: [
+                PropertyPaneTextField('cewpTitle', {
+                  label: strings.CEWPTitle,
+                  rows: 1,
+                  multiline: false,
+                  resizable: false
+                }),
                 PropertyPaneTextField('contentLink', {
                   label: strings.ContentlinkFieldLabel,
                   multiline: true,

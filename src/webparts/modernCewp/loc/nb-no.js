@@ -4,6 +4,7 @@ define([], function() {
       "BasicGroupName": "",
       "webPartName":"Legg til HTML kode direkte i denne siden, eller link til en eksisterende HTML fil.",
       "webPartSettings": "Egenskaper: ",
+      "CEWPTitle": "Title",
       "ContentlinkFieldLabel": "Kobling til innhold",
       "ContentFieldLabel": "HTML kode",
       "WebPartCurrentPathLabel":"Dette er gjeldende bane i kobling til innhold:",

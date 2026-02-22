@@ -4,6 +4,7 @@ define([], function() {
     "BasicGroupName": "",
     "webPartName":"Add HTML code directly to this page, or link to an existing HTML file.",
     "webPartSettings": "Properties: ",
+    "CEWPTitle": "Title",
     "ContentlinkFieldLabel": "Content link",
     "ContentFieldLabel": "HTML code",
     "WebPartCurrentPathLabel":"This is the current content link path:",
