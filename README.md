@@ -24,6 +24,9 @@ Version 1.0.0.2 is built with an SPfx version that only works on SPO. Previous v
 Modern CEWP | Alexander Bautz - SPJSWorks.com
 
 ## Version history
+1.0.0.5 - February 22, 2026
+Made it compatible with the new CSP policy that Microsoft starts enforcing on March 1, 2026. Added title property on the webpart that can be used to describe what the code does for easy maintenance on a page with multiple webparts.
+
 1.0.0.2 - August 08, 2023
 Updated SPfx version and rebuild solution. Published to GitHub
 
