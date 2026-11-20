@@ -16,6 +16,7 @@ define([], function() {
       "WebPartHasContentLinkLabel": "Kobling til innhold: ",
       "WebPartHasPageContextLabel": "Kontekst for klassiske side: ",
       "AddspPageContextInfo":"Gjør _spPageContextInfo tilgjengelig i siden.",
+      "VersionLabel": "Versjon: ",
       "Yes": "Ja",
       "No":"Nei"
     };

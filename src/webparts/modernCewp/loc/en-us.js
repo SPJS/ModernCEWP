@@ -16,6 +16,7 @@ define([], function() {
     "WebPartHasContentLinkLabel": "Content link: ",
     "WebPartHasPageContextLabel": "Legacy page context: ",
     "AddspPageContextInfo":"Make _spPageContextInfo available in the page",
+    "VersionLabel": "Version: ",
     "Yes": "Yes",
     "No":"No"
   };

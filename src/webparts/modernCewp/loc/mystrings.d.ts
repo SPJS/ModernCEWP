@@ -12,7 +12,8 @@ declare interface IModernCewpWebPartStrings {
   WebPartCurrentPathLabel: string;
   Link: string;
   BasicGroupName: string;
-  CEWPTitle: string,
+  CEWPTitle: string;
+  VersionLabel: string;
   ContentlinkFieldLabel: string;
   ContentFieldLabel: string;
   webPartName: string;
