@@ -36,6 +36,8 @@ SharePoint Online enforces a Content Security Policy from March 1, 2026. This af
   ```
 - Only JavaScript `<script>` blocks are run. Blocks with another `type` (for example `text/html` templates or `application/json`) are left in place for your code to read. Inline `<script type="module">` is not supported, so use an external file with `src` instead.
 
+When the page is in edit mode, the web part shows a warning if the HTML code or the linked file contains inline event handlers or `javascript:` links. In read mode the same warning is written to the browser console.
+
 The version in use is shown in the web part when the page is in edit mode, and at the top of the property pane.
 
 ## Solution
@@ -46,12 +48,14 @@ Modern CEWP | Alexander Bautz - SPJSWorks.com
 1.0.0.7 - November 19, 2026
 Fixed loading of HTML files that reference external stylesheets with `<link rel="stylesheet">`. Relative stylesheet and script URLs are now resolved against the linked HTML file.
 Inline scripts now run in the global scope again, so functions and variables declared in one script can be used from other scripts.
-Script blocks that are not JavaScript (templates, JSON) are no longer run.
+Script blocks that are not JavaScript (templates, JSON) are no longer run, and are kept in the HTML so your code can read them.
+Warns about inline event handlers and `javascript:` links that are blocked by CSP (visible in edit mode, and in the console in read mode).
 Fixed the "empty" message not showing on a newly added web part, and the error message showing "undefined" when a content link failed to load.
 The web part version is now shown in edit mode and in the property pane.
 A script that fails to load (for example blocked by CSP) is logged to the console, and the remaining scripts still run.
 jQuery is now also available as `$` (only if `$` is not already defined).
 Updated to SharePoint Framework v1.24.2 and the new Heft build toolchain.
+Removed the Norwegian translation. The web part is now English only.
 
 1.0.0.6 - February 27, 2026
 Fixed a bug where the <style> tags were not added to the DOM when loaded as part as a HTML file.

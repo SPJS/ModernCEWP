@@ -44,6 +44,12 @@
     cursor: default;
   }
 
+  .warning {
+    font-weight: 600;
+    border-left: 3px solid #ffb900;
+    padding-left: 8px;
+  }
+
   .label {
     @include ms-font-m;
     @include ms-fontColor-white;

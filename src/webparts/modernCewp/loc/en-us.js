@@ -17,6 +17,7 @@ define([], function() {
     "WebPartHasPageContextLabel": "Legacy page context: ",
     "AddspPageContextInfo":"Make _spPageContextInfo available in the page",
     "VersionLabel": "Version: ",
+    "CspWarningLabel": "Warning: This content uses inline event handlers or javascript: links. They are blocked by SharePoint's Content Security Policy and will not work. Use addEventListener in a script instead.",
     "Yes": "Yes",
     "No":"No"
   };

@@ -41,6 +41,41 @@ export default class ModernCewpWebPart extends BaseClientSideWebPart<IModernCewp
     return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
+  // True for script elements that the web part executes. Other script blocks
+  // (templates, JSON data etc.) are left in the HTML for the user's code to read.
+  private static _isExecutableScript(script: HTMLScriptElement): boolean {
+    const type: string = (script.getAttribute('type') || '').trim().toLowerCase();
+    return type === '' || type === 'module' || ModernCewpWebPart._jsMimeTypes.indexOf(type) !== -1;
+  }
+
+  // Finds markup that SharePoint's Content Security Policy blocks: inline event
+  // handler attributes (onclick etc.) and javascript: URLs. Returns short
+  // descriptions such as "<button onclick>" (without duplicates).
+  private static _findCspBlockedMarkup(root: ParentNode): string[] {
+    const found: string[] = [];
+    Array.from(root.querySelectorAll('*')).forEach((el: Element) => {
+      Array.from(el.attributes).forEach((attr: Attr) => {
+        const name: string = attr.name.toLowerCase();
+        const isHandler: boolean = name.indexOf('on') === 0 && name.length > 2;
+        const isJsUrl: boolean = ['href', 'src', 'action', 'formaction'].indexOf(name) !== -1
+          && /^\s*javascript:/i.test(attr.value);
+        if (isHandler || isJsUrl) {
+          const desc: string = `<${el.tagName.toLowerCase()} ${isJsUrl ? name + '="javascript:..."' : name}>`;
+          if (found.indexOf(desc) === -1) {
+            found.push(desc);
+          }
+        }
+      });
+    });
+    return found;
+  }
+
+  private static _warnCspBlockedMarkup(found: string[], source: string): void {
+    if (found.length > 0) {
+      console.warn(`Modern CEWP - ${source} contains markup that is blocked by SharePoint's Content Security Policy and will not work: ${found.join(', ')}. Use addEventListener in a script instead.`);
+    }
+  }
+
   private get _version(): string {
     return this.context.manifest.version;
   }
@@ -61,9 +96,49 @@ export default class ModernCewpWebPart extends BaseClientSideWebPart<IModernCewp
           <p class="${styles.label}">${strings.WebPartHasHTMLLabel}${hasHtml}</p>
           <p class="${styles.label}">${strings.WebPartHasPageContextLabel}${hasLegacyContext}</p>
           <p class="${styles.label}">${strings.VersionLabel}${this._version}</p>
+          <div class="cewpCspWarnings"></div>
         </div>
       </div>
     </div>`;
+    this._showCspWarningsInEditMode().catch((err: unknown) => {
+      console.log("Modern CEWP - Could not check content for CSP issues: ", err);
+    });
+  }
+
+  // Lets editors see markup that will not work because of CSP, without opening the console.
+  private async _showCspWarningsInEditMode(): Promise<void> {
+    const parser: DOMParser = new DOMParser();
+    const warnings: string[] = [];
+
+    const html: string = this.properties.content || "";
+    if (html !== "") {
+      const found: string[] = ModernCewpWebPart._findCspBlockedMarkup(parser.parseFromString(html, 'text/html'));
+      if (found.length > 0) {
+        warnings.push(`${strings.WebPartHasHTMLLabel}${found.join(', ')}`);
+      }
+    }
+
+    const path: string = (this.properties.contentLink || "").trim();
+    if (path !== "") {
+      try {
+        const response: Response = await fetch(path);
+        if (response.ok) {
+          const found: string[] = ModernCewpWebPart._findCspBlockedMarkup(parser.parseFromString(await response.text(), 'text/html'));
+          if (found.length > 0) {
+            warnings.push(`${strings.WebPartHasContentLinkLabel}${found.join(', ')}`);
+          }
+        }
+      } catch {
+        // Load errors are shown in read mode.
+      }
+    }
+
+    const target: HTMLElement | null = this.domElement.querySelector('.cewpCspWarnings');
+    if (target && warnings.length > 0) {
+      target.innerHTML = `
+        <p class="${styles.label} ${styles.warning}">${strings.CspWarningLabel}</p>
+        ${warnings.map((w: string) => `<p class="${styles.label} ${styles.warning}">${ModernCewpWebPart._escapeHtml(w)}</p>`).join('')}`;
+    }
   }
 
   public async processFetchedHTML(htmlString: string, pId: string, baseUrl?: string): Promise<void> {
@@ -72,9 +147,19 @@ export default class ModernCewpWebPart extends BaseClientSideWebPart<IModernCewp
     // Parse the string into a temporary HTML Document
     const doc: Document = parser.parseFromString(htmlString, 'text/html');
 
-    // Extract scripts, inline styles, and external stylesheet links.
-    const scripts: NodeListOf<HTMLScriptElement> = doc.querySelectorAll('script');
-    const scriptArray: HTMLScriptElement[] = Array.from(scripts);
+    ModernCewpWebPart._warnCspBlockedMarkup(
+      ModernCewpWebPart._findCspBlockedMarkup(doc),
+      baseUrl ? `The content link ${baseUrl}` : 'The HTML code'
+    );
+
+    // Extract the scripts that will be executed. Non-JavaScript script blocks stay in the HTML.
+    const allScripts: HTMLScriptElement[] = Array.from(doc.querySelectorAll('script'));
+    const scriptArray: HTMLScriptElement[] = allScripts.filter(ModernCewpWebPart._isExecutableScript);
+
+    // Only doc.body is injected, so move non-JavaScript script blocks from <head> into the body.
+    allScripts
+      .filter((script: HTMLScriptElement) => !ModernCewpWebPart._isExecutableScript(script) && doc.head.contains(script))
+      .forEach((script: HTMLScriptElement) => doc.body.insertBefore(script, doc.body.firstChild));
 
     const styles: NodeListOf<HTMLStyleElement> = doc.querySelectorAll('style');
     const styleArray: HTMLStyleElement[] = Array.from(styles);
@@ -94,7 +179,8 @@ export default class ModernCewpWebPart extends BaseClientSideWebPart<IModernCewp
     const container: HTMLElement | null = this.domElement.querySelector('#' + pId);
 
     if (container) {
-      // Inject the HTML without scripts, style blocks, or stylesheet links.
+      // Inject the HTML without executable scripts, style blocks, or stylesheet links.
+      // Script blocks left in the HTML (templates, JSON) are not executed by innerHTML.
       container.innerHTML = doc.body.innerHTML;
 
       // Inject inline styles into the container.
@@ -131,14 +217,12 @@ export default class ModernCewpWebPart extends BaseClientSideWebPart<IModernCewp
 
   public async handleScriptsOrdered(scripts: NodeListOf<HTMLScriptElement> | HTMLScriptElement[], baseUrl?: string): Promise<void> {
     for (const script of Array.from(scripts)) {
-      // Only execute JavaScript. Leave templates, JSON data blocks etc. alone.
-      const type: string = (script.getAttribute('type') || '').trim().toLowerCase();
-      const isClassicJs: boolean = type === '' || ModernCewpWebPart._jsMimeTypes.indexOf(type) !== -1;
-      const isModule: boolean = type === 'module';
-      if (!isClassicJs && !(isModule && script.hasAttribute('src'))) {
-        if (isModule) {
-          console.warn("Modern CEWP - Inline <script type=\"module\"> is not supported. Move the code to an external .js file.");
-        }
+      if (!ModernCewpWebPart._isExecutableScript(script)) {
+        continue;
+      }
+      const isModule: boolean = (script.getAttribute('type') || '').trim().toLowerCase() === 'module';
+      if (isModule && !script.hasAttribute('src')) {
+        console.warn("Modern CEWP - Inline <script type=\"module\"> is not supported. Move the code to an external .js file.");
         continue;
       }
       if (script.hasAttribute('src')) {
