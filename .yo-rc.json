@@ -1,16 +1,10 @@
 {
   "@microsoft/generator-sharepoint": {
-    "sdkVersions": {
-      "@microsoft/teams-js": "2.24.0"
-    },
     "plusBeta": false,
     "isCreatingSolution": true,
-    "nodeVersion": "16.20.0",
-    "sdksVersions": {
-      "@microsoft/microsoft-graph-client": "3.0.2",
-      "@microsoft/teams-js": "2.9.1"
-    },
-    "version": "1.21.1",
+    "nodeVersion": "22.21.0",
+    "sdksVersions": {},
+    "version": "1.24.2",
     "libraryName": "modern-cewp",
     "libraryId": "7da822d6-d286-401d-b898-8620619ebf90",
     "environment": "spo",
@@ -19,6 +13,7 @@
     "solutionShortDescription": "modern-cewp description",
     "skipFeatureDeployment": true,
     "isDomainIsolated": false,
-    "componentType": "webpart"
+    "componentType": "webpart",
+    "useGulp": false
   }
 }

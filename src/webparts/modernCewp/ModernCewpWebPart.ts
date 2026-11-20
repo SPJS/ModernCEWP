@@ -13,7 +13,7 @@ import {
 
 import styles from './ModernCewpWebPart.module.scss';
 import * as strings from 'ModernCewpWebPartStrings';
-import * as jQuery from 'jquery';
+import jQuery from 'jquery';
 
 export interface IModernCewpWebPartProps {
   spPageContextInfo: boolean;
@@ -110,8 +110,8 @@ export default class ModernCewpWebPart extends BaseClientSideWebPart<IModernCewp
         }
 
         const resolvedHref: string = baseUrl ? new URL(href, baseUrl).href : href;
-        const existingLink: HTMLLinkElement | null = Array.from(document.head.querySelectorAll('link[rel~="stylesheet"]'))
-          .find((existing: HTMLLinkElement) => existing.getAttribute('href') === resolvedHref) as HTMLLinkElement | null;
+        const existingLink: HTMLLinkElement | undefined = Array.from(document.head.querySelectorAll<HTMLLinkElement>('link[rel~="stylesheet"]'))
+          .find((existing: HTMLLinkElement) => existing.getAttribute('href') === resolvedHref);
 
         if (!existingLink) {
           const newLink: HTMLLinkElement = document.createElement('link');
@@ -210,6 +210,12 @@ export default class ModernCewpWebPart extends BaseClientSideWebPart<IModernCewp
       });
     }
     if (path !== "") {
+      const showLinkMessage = (messageHtml: string): void => {
+        const placeholder: HTMLElement | null = this.domElement.querySelector('#' + contentLinkPlaceholderId);
+        if (placeholder) {
+          placeholder.innerHTML = messageHtml;
+        }
+      };
       fetch(path).then(async (data) => {
         if (data.ok) {
           const content = await data.text();
@@ -217,7 +223,7 @@ export default class ModernCewpWebPart extends BaseClientSideWebPart<IModernCewp
             console.log("Modern CEWP - Error in processFetchedHTML for contentlink: ", err);
           });
         } else {
-          this.domElement.querySelector('#' + contentLinkPlaceholderId).innerHTML = "Content link error: " + String(data.status);
+          showLinkMessage("Content link error: " + String(data.status));
         }
       }).catch((err: Error) => {
         const str: string = `
@@ -229,7 +235,7 @@ export default class ModernCewpWebPart extends BaseClientSideWebPart<IModernCewp
               ${ModernCewpWebPart._escapeHtml(err && err.message ? err.message : String(err))}
             </div>
         </div>`;
-        this.domElement.querySelector('#' + contentLinkPlaceholderId).innerHTML = str;
+        showLinkMessage(str);
       });
     }
     if (path === "" && html === "") {

@@ -6,7 +6,7 @@ This webpart replicates the classic SharePoint Content Editor Web part and lets 
 
 ## Used SharePoint Framework Version
 
-![version](https://img.shields.io/badge/version-1.21.1-green.svg)
+![version](https://img.shields.io/badge/version-1.24.2-green.svg)
 
 ## Applies to
 
@@ -18,6 +18,8 @@ This webpart replicates the classic SharePoint Content Editor Web part and lets 
 ## Prerequisites
 
 Version 1.0.0.2 is built with an SPfx version that only works on SPO. Previous version should work with SharePoint 2019 on-prem.
+
+To build the solution you need Node.js 22, 24 or 26 (LTS).
 
 ## Content Security Policy (CSP)
 
@@ -49,7 +51,7 @@ Fixed the "empty" message not showing on a newly added web part, and the error m
 The web part version is now shown in edit mode and in the property pane.
 A script that fails to load (for example blocked by CSP) is logged to the console, and the remaining scripts still run.
 jQuery is now also available as `$` (only if `$` is not already defined).
-The web part now renders in the local workbench.
+Updated to SharePoint Framework v1.24.2 and the new Heft build toolchain.
 
 1.0.0.6 - February 27, 2026
 Fixed a bug where the <style> tags were not added to the DOM when loaded as part as a HTML file.
@@ -85,11 +87,12 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 - Ensure that you are at the solution folder
 - in the command-line run:
   - **npm install**
-  - **npm run serve** (uses spfx-fast-serve)
+  - **npm run start** (builds, watches for changes and serves the web part to the hosted workbench / the page set in `config/serve.json`)
 - To build a package for deployment:
-  - **gulp bundle --ship**
-  - **gulp package-solution --ship**
+  - **npm run build**
   - The package is created at `sharepoint/solution/modern-cewp.sppkg`
+
+The project uses the Heft based build toolchain introduced in SPFx 1.22. Gulp is no longer used.
 
 ## References
 
