@@ -45,7 +45,7 @@ The version in use is shown in the web part when the page is in edit mode, and a
 Modern CEWP | Alexander Bautz - SPJSWorks.com
 
 ## Version history
-1.0.0.7 - November 19, 2026
+1.0.0.7 - November 20, 2026
 Fixed loading of HTML files that reference external stylesheets with `<link rel="stylesheet">`. Relative stylesheet and script URLs are now resolved against the linked HTML file.
 Inline scripts now run in the global scope again, so functions and variables declared in one script can be used from other scripts.
 Script blocks that are not JavaScript (templates, JSON) are no longer run, and are kept in the HTML so your code can read them.
